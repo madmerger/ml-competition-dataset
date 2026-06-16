@@ -13,8 +13,8 @@ import os
 import warnings
 
 import lightgbm as lgb
-import numpy as np
 import pandas as pd
+from sklearn.impute import SimpleImputer
 from sklearn.linear_model import LogisticRegression
 from sklearn.metrics import accuracy_score, roc_auc_score
 from sklearn.preprocessing import StandardScaler
@@ -177,8 +177,9 @@ def main():
     print("=" * 60)
 
     # 欠損値を中央値で補完
-    X_train_lr = np.nan_to_num(X_train, nan=0.0)
-    X_test_lr = np.nan_to_num(X_test, nan=0.0)
+    imputer = SimpleImputer(strategy="median")
+    X_train_lr = imputer.fit_transform(X_train)
+    X_test_lr = imputer.transform(X_test)
 
     scaler = StandardScaler()
     X_train_scaled = scaler.fit_transform(X_train_lr)
