@@ -40,6 +40,12 @@ def build_features(products: pd.DataFrame, batch_features: pd.DataFrame) -> pd.D
 
 
 def feature_columns(df: pd.DataFrame) -> list[str]:
-    """Return the model input columns (everything except identifiers/target)."""
-    exclude = {"product_id", "rank", "is_rank_d"}
+    """Return the model input columns (everything except identifiers/target).
+
+    ``batch_count`` is excluded: it is a monotonically increasing batch index
+    (train uses low values, test starts at ~10000) so feeding it as a raw
+    numeric would force the models to extrapolate to out-of-distribution values
+    at test time. It is still used to *join* sensor features, just not as input.
+    """
+    exclude = {"product_id", "rank", "is_rank_d", "batch_count"}
     return [c for c in df.columns if c not in exclude]

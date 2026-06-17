@@ -21,6 +21,7 @@ from pathlib import Path
 import lightgbm as lgb
 import numpy as np
 import pandas as pd
+from sklearn.impute import SimpleImputer
 from sklearn.linear_model import LinearRegression
 from sklearn.metrics import accuracy_score, roc_auc_score
 from sklearn.pipeline import make_pipeline
@@ -72,7 +73,11 @@ def train_boosted_tree(x: pd.DataFrame, y: pd.Series) -> lgb.LGBMRegressor:
 
 
 def train_linear(x: pd.DataFrame, y: pd.Series):
-    model = make_pipeline(StandardScaler(), LinearRegression())
+    # Impute first: a left-join with the machine log (or a single-row batch's
+    # std) can leave NaNs, which the linear pipeline cannot handle natively.
+    model = make_pipeline(
+        SimpleImputer(strategy="median"), StandardScaler(), LinearRegression()
+    )
     model.fit(x, y)
     return model
 
