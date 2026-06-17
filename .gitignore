@@ -1,0 +1,11 @@
+# Extracted dataset (large; recreated from data.zip on first run)
+/data/
+
+# Model outputs / submissions
+/outputs/
+
+# Python
+__pycache__/
+*.pyc
+.venv/
+venv/
