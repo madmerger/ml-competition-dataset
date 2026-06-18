@@ -1,0 +1,6 @@
+data/
+outputs/*.pkl
+outputs/*.json
+outputs/*.csv
+__pycache__/
+*.pyc
