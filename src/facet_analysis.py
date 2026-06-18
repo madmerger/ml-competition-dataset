@@ -37,6 +37,7 @@ from facet.simulation.viz import SimulationDrawer
 from pytools.viz.dendrogram import DendrogramDrawer
 from pytools.viz.matrix import MatrixDrawer
 from sklearndf.classification import GradientBoostingClassifierDF
+from xgboost import XGBClassifier
 
 warnings.filterwarnings("ignore")
 
@@ -242,13 +243,14 @@ def section_3_bootstrap_stability(
         X_bs = X_train.iloc[idx]
         y_bs = y_train.iloc[idx]
 
-        # BDT
-        gbc = GradientBoostingClassifier(
+        # BDT — use XGBClassifier to match train.py
+        xgb = XGBClassifier(
             n_estimators=300, max_depth=6, learning_rate=0.1,
-            subsample=0.8, random_state=42,
+            subsample=0.8, colsample_bytree=0.8,
+            eval_metric="logloss", random_state=42, n_jobs=-1,
         )
-        gbc.fit(X_bs, y_bs)
-        bdt_p = gbc.predict_proba(X_test)[:, 1]
+        xgb.fit(X_bs, y_bs)
+        bdt_p = xgb.predict_proba(X_test)[:, 1]
         bdt_accs.append(accuracy_score(y_test, (bdt_p >= 0.5).astype(int)))
         bdt_aucs.append(roc_auc_score(y_test, bdt_p))
 
@@ -349,9 +351,10 @@ def section_4_cross_val_comparison(
 
     skf = StratifiedKFold(n_splits=5, shuffle=True, random_state=42)
 
-    gbc = GradientBoostingClassifier(
+    xgb = XGBClassifier(
         n_estimators=300, max_depth=6, learning_rate=0.1,
-        subsample=0.8, random_state=42,
+        subsample=0.8, colsample_bytree=0.8,
+        eval_metric="logloss", random_state=42, n_jobs=-1,
     )
 
     from sklearn.pipeline import Pipeline
@@ -360,7 +363,7 @@ def section_4_cross_val_comparison(
         ("lr", LogisticRegression(max_iter=1000, random_state=42)),
     ])
 
-    bdt_scores = cross_val_score(gbc, X_train, y_train, cv=skf, scoring="roc_auc", n_jobs=-1)
+    bdt_scores = cross_val_score(xgb, X_train, y_train, cv=skf, scoring="roc_auc", n_jobs=-1)
     lr_scores = cross_val_score(lr_pipe, X_train, y_train, cv=skf, scoring="roc_auc", n_jobs=-1)
 
     print(f"  BDT 5-fold AUC: {bdt_scores.mean():.4f} +/- {bdt_scores.std():.4f}")
