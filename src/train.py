@@ -90,8 +90,12 @@ def train_and_evaluate():
     X_train = train_merged[feature_cols].values
     y_train = train_merged["target"].values
 
-    X_test = test_merged[feature_cols].values
-    y_test = ground_truth["prediction"].values
+    # Merge test with ground_truth on product_id to ensure row alignment
+    test_with_labels = test_merged.merge(
+        ground_truth[["product_id", "prediction"]], on="product_id", how="inner"
+    )
+    X_test = test_with_labels[feature_cols].values
+    y_test = test_with_labels["prediction"].values
 
     print(f"Features: {len(feature_cols)}")
     print(f"Train size: {X_train.shape[0]}, Test size: {X_test.shape[0]}")

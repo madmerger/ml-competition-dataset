@@ -67,7 +67,7 @@ def run_facet_analysis():
     lgbm_pipeline = ClassifierPipelineDF(
         preprocessing=preprocessing,
         classifier=LGBMClassifierDF(
-            n_estimators=300,
+            n_estimators=500,
             max_depth=6,
             learning_rate=0.05,
             num_leaves=31,
@@ -187,6 +187,7 @@ def run_facet_analysis():
     # --- Step 3: Robustness via Bootstrap Performance Distribution ---
     print("\n=== Step 3: Bootstrap Robustness Analysis ===")
 
+    from lightgbm import LGBMClassifier
     from sklearn.metrics import roc_auc_score, accuracy_score
 
     n_bootstrap = 30
@@ -207,14 +208,13 @@ def run_facet_analysis():
         X_oob = train_sample.iloc[oob_idx][feature_names]
         y_oob = train_sample.iloc[oob_idx]["target"]
 
-        # Impute NaN
-        X_boot = X_boot.fillna(X_boot.median())
-        X_oob = X_oob.fillna(X_boot.median())
-
-        from lightgbm import LGBMClassifier
+        # Impute NaN with pre-imputation median
+        boot_median = X_boot.median()
+        X_boot = X_boot.fillna(boot_median)
+        X_oob = X_oob.fillna(boot_median)
 
         model = LGBMClassifier(
-            n_estimators=300,
+            n_estimators=500,
             max_depth=6,
             learning_rate=0.05,
             num_leaves=31,
@@ -275,11 +275,12 @@ def run_facet_analysis():
     importance_per_boot = []
     for i in range(min(10, n_bootstrap)):
         idx = rng.choice(len(train_sample), size=len(train_sample), replace=True)
-        X_boot = train_sample.iloc[idx][feature_names].fillna(0)
+        X_boot = train_sample.iloc[idx][feature_names]
+        X_boot = X_boot.fillna(X_boot.median())
         y_boot = train_sample.iloc[idx]["target"]
 
         model = LGBMClassifier(
-            n_estimators=300,
+            n_estimators=500,
             max_depth=6,
             learning_rate=0.05,
             num_leaves=31,
