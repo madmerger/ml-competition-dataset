@@ -1,0 +1,13 @@
+# Extracted data (large CSVs) - use data.zip instead
+data/
+
+# Python
+__pycache__/
+*.py[cod]
+*.egg-info/
+.venv/
+
+# IDE
+.idea/
+.vscode/
+outputs/train_features.csv

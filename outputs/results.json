@@ -1,0 +1,10 @@
+{
+  "LightGBM": {
+    "Accuracy": 0.84368,
+    "AUC": 0.8026782496957419
+  },
+  "LogisticRegression": {
+    "Accuracy": 0.85223,
+    "AUC": 0.6792954199778977
+  }
+}

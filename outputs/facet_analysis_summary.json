@@ -1,0 +1,21 @@
+{
+  "bootstrap_auc_mean": 0.7284630935142864,
+  "bootstrap_auc_std": 0.01390993461578822,
+  "bootstrap_accuracy_mean": 0.8659315650862418,
+  "bootstrap_accuracy_std": 0.007016386927401853,
+  "n_features": 26,
+  "top_5_features": [
+    "pressure_mean",
+    "batch_count",
+    "position",
+    "pressure_max",
+    "pressure_min"
+  ],
+  "top_5_importance_cv": [
+    0.06366772457256223,
+    0.09002267407720298,
+    0.09400532299822381,
+    0.0814557829611732,
+    0.07480325162626827
+  ]
+}
