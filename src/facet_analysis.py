@@ -234,14 +234,6 @@ def section_3_bootstrap_stability(
     bdt_accs, bdt_aucs = [], []
     lr_accs, lr_aucs = [], []
 
-    scaler = StandardScaler()
-    X_train_scaled = pd.DataFrame(
-        scaler.fit_transform(X_train), columns=feature_cols, index=X_train.index,
-    )
-    X_test_scaled = pd.DataFrame(
-        scaler.transform(X_test), columns=feature_cols, index=X_test.index,
-    )
-
     rng = np.random.RandomState(42)
 
     for i in range(n_bootstrap):
@@ -249,8 +241,8 @@ def section_3_bootstrap_stability(
         idx = rng.choice(len(X_train), size=len(X_train), replace=True)
         X_bs = X_train.iloc[idx]
         y_bs = y_train.iloc[idx]
-        X_bs_scaled = X_train_scaled.iloc[idx]
 
+        # BDT
         gbc = GradientBoostingClassifier(
             n_estimators=300, max_depth=6, learning_rate=0.1,
             subsample=0.8, random_state=42,
@@ -260,7 +252,14 @@ def section_3_bootstrap_stability(
         bdt_accs.append(accuracy_score(y_test, (bdt_p >= 0.5).astype(int)))
         bdt_aucs.append(roc_auc_score(y_test, bdt_p))
 
-        # LR
+        # LR — fit a fresh scaler per bootstrap sample
+        scaler = StandardScaler()
+        X_bs_scaled = pd.DataFrame(
+            scaler.fit_transform(X_bs), columns=feature_cols, index=X_bs.index,
+        )
+        X_test_scaled = pd.DataFrame(
+            scaler.transform(X_test), columns=feature_cols, index=X_test.index,
+        )
         lr = LogisticRegression(max_iter=1000, random_state=42)
         lr.fit(X_bs_scaled, y_bs)
         lr_p = lr.predict_proba(X_test_scaled)[:, 1]
