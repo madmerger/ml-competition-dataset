@@ -87,9 +87,11 @@ def section_1_shap_inspection(
 
     print("\n=== Section 1: SHAP-based Feature Inspection (BDT) ===")
 
-    # Use sklearn GradientBoosting (tree-based, compatible with TreeExplainer)
+    # sklearn GBC is used instead of XGBoost because FACET's TreeExplainer
+    # requires SHAP interaction values in a format XGBoost does not provide.
+    # Hyperparameters are aligned with the XGBoost model in train.py.
     gbc = GradientBoostingClassifier(
-        n_estimators=200, max_depth=5, learning_rate=0.1, subsample=0.8,
+        n_estimators=300, max_depth=6, learning_rate=0.1, subsample=0.8,
         random_state=42,
     )
     gbc.fit(X_train, y_train)
@@ -187,7 +189,7 @@ def section_2_simulation(
 
     # Fit a DF-wrapped classifier for simulation
     gbc_df = GradientBoostingClassifierDF(
-        n_estimators=200, max_depth=5, learning_rate=0.1,
+        n_estimators=300, max_depth=6, learning_rate=0.1,
         subsample=0.8, random_state=42,
     )
     gbc_df.fit(X_sub, y_sub)
@@ -249,9 +251,8 @@ def section_3_bootstrap_stability(
         y_bs = y_train.iloc[idx]
         X_bs_scaled = X_train_scaled.iloc[idx]
 
-        # BDT (use sklearn GBC for consistency)
         gbc = GradientBoostingClassifier(
-            n_estimators=100, max_depth=4, learning_rate=0.1,
+            n_estimators=300, max_depth=6, learning_rate=0.1,
             subsample=0.8, random_state=42,
         )
         gbc.fit(X_bs, y_bs)
@@ -350,7 +351,7 @@ def section_4_cross_val_comparison(
     skf = StratifiedKFold(n_splits=5, shuffle=True, random_state=42)
 
     gbc = GradientBoostingClassifier(
-        n_estimators=200, max_depth=5, learning_rate=0.1,
+        n_estimators=300, max_depth=6, learning_rate=0.1,
         subsample=0.8, random_state=42,
     )
 
@@ -395,7 +396,7 @@ def section_5_feature_interaction(
     print("\n=== Section 5: Feature Interaction Matrix ===")
 
     gbc = GradientBoostingClassifier(
-        n_estimators=200, max_depth=5, learning_rate=0.1,
+        n_estimators=300, max_depth=6, learning_rate=0.1,
         subsample=0.8, random_state=42,
     )
     gbc.fit(X_train, y_train)
